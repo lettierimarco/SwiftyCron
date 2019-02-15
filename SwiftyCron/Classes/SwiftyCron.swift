@@ -31,7 +31,8 @@ public class SwiftyCron {
     }
     
     fileprivate enum CronCompnent:Int {
-        case minute = 0
+        case second = 0
+        case minute
         case hour
         case day
         case month
@@ -51,7 +52,19 @@ public class SwiftyCron {
             case .sunday: return "Sunday"
             }
         }
-        
+        public init?(raw:String) {
+            switch(raw){
+                case "MON": self = .monday; break;
+                case "TUE": self = .tuesday; break;
+                case "WED": self = .wednesday; break;
+                case "THU": self = .thursday; break;
+                case "FRI": self = .friday; break;
+                case "SAT": self = .saturday; break;
+                case "SUN": self = .sunday; break;
+                default: self = .monday; break;
+            }
+        }
+
         public var inittialString:Substring {
             return self.fullString.prefix(3)
         }
@@ -107,7 +120,7 @@ public class SwiftyCron {
     public var hour:Int?
     public var day:Int?
     public var month:Month?
-    public var weekday:Weekday?
+    public var weekdays = [Weekday]()
     public var year:Int?
     
     
@@ -122,14 +135,14 @@ public class SwiftyCron {
         }
     }
     
-    public init?(minute:Int? = nil, hour:Int? = nil, day:Int? = nil, month:Month? = nil, weekday:Weekday? = nil, year:Int? = nil) {
+    public init?(minute:Int? = nil, hour:Int? = nil, day:Int? = nil, month:Month? = nil, weekdays:Array<Weekday>, year:Int? = nil) {
         do {
-            try validate(minute: minute, hour: hour, day: day, month: month, weekday: weekday, year: year)
+            try validate(minute: minute, hour: hour, day: day, month: month, weekdays: weekdays, year: year)
             self.minute = minute
             self.hour = hour
             self.day = day
             self.month = month
-            self.weekday = weekday
+            self.weekdays = weekdays
             self.year = year
         } catch {
             return nil
@@ -148,8 +161,10 @@ public class SwiftyCron {
         self.hour = Int(cronExpressionArray[CronCompnent.hour.rawValue])
         self.day = Int(cronExpressionArray[CronCompnent.day.rawValue])
         self.month = Int(cronExpressionArray[CronCompnent.month.rawValue]) == nil ? nil : Month(rawValue: Int(cronExpressionArray[CronCompnent.month.rawValue])!)
-        self.weekday =  Int(cronExpressionArray[CronCompnent.weekday.rawValue]) == nil ? nil : Weekday(rawValue: Int(cronExpressionArray[CronCompnent.weekday.rawValue])!)
-        
+        let weedaysRaw = cronExpressionArray[CronCompnent.weekday.rawValue]
+        for weekDay in weedaysRaw.components(separatedBy: ","){
+            self.weekdays.append(Weekday.init(raw: weekDay)!)
+        }
         self.year = cronExpressionArray.count == CronCompnent.year.rawValue + 1 ? Int(cronExpressionArray[CronCompnent.year.rawValue]) :  nil
         
     }
@@ -226,7 +241,7 @@ public class SwiftyCron {
         }
     }
     
-    fileprivate func validate(minute:Int? = nil, hour:Int? = nil, day:Int? = nil, month:Month? = nil, weekday:Weekday? = nil, year:Int? = nil) throws {
+    fileprivate func validate(minute:Int? = nil, hour:Int? = nil, day:Int? = nil, month:Month? = nil, weekdays:Array<Weekday>, year:Int? = nil) throws {
         //        Validate minute
         if minute != nil {
             guard (minute! >= 0 && minute! <= 59) else {
@@ -249,18 +264,18 @@ public class SwiftyCron {
         }
         
         //        Validate month
-//        if month != nil {
-//            guard (month! >= 1 && month! <= 12) else {
-//                throw DecomposingError.invalidMonth
-//            }
-//        }
-//        
-//        //        Validate weekday
-//        if weekday != nil {
-//            guard (weekday! >= 1 && weekday! <= 7) else {
-//                throw DecomposingError.invalidWeekday
-//            }
-//        }
+        //        if month != nil {
+        //            guard (month! >= 1 && month! <= 12) else {
+        //                throw DecomposingError.invalidMonth
+        //            }
+        //        }
+        //
+        //        //        Validate weekday
+        //        if weekday != nil {
+        //            guard (weekday! >= 1 && weekday! <= 7) else {
+        //                throw DecomposingError.invalidWeekday
+        //            }
+        //        }
         
         //        Validate year
         if year != nil {
@@ -270,4 +285,3 @@ public class SwiftyCron {
         }
     }
 }
-
