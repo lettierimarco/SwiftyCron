@@ -1,6 +1,6 @@
 # SwiftyCron
 
-for of https://github.com/patrickgao0922/SwiftyCron
+fork of https://github.com/patrickgao0922/SwiftyCron
 
 my swiftycron is able to decode seconds and weekdays from expression
 
